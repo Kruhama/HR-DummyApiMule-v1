@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e86e75b7-2b08-41ad-ab9b-fcc8d271b7cd" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="235c38af-d046-483a-ad4b-6907304ab0e6" >
+		<http:request-connection host="	dummy.restapiexample.com" />
+	</http:request-config>
+	<flow name="dummyapiFlow" doc:id="77293b01-c245-4afb-b693-e44cfdba664f" >
+		<http:listener doc:name="Listener" doc:id="7189c059-ef9f-4f57-afdd-184659780e98" config-ref="HTTP_Listener_config" path="/employee"/>
+		<set-variable value="#[payload.EID]" doc:name="Set Variable" doc:id="48d1fa57-780d-4c95-b11b-3ac62003d37c" variableName="EID"/>
+		<http:request method="GET" doc:name="Request" doc:id="67467006-84d8-4def-94e7-3f607470262c" url="#['https://dummy.restapiexample.com/api/v1/employee/' ++ vars.EID]" config-ref="HTTP_Request_configuration"/>
+		<ee:transform doc:name="Transform Message" doc:id="b171fd9b-bddf-4961-a69e-2fab6e47f2e9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+	{
+		"Age": payload.data.employee_age
+		
+	}
+	
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
